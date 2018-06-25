@@ -12,6 +12,15 @@ Author URI: https://www.gocashfree.com
 add_action( 'plugins_loaded', 'woocommerce_cashfree_init', 0 );
 define('IMGDIR', WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/assets/img/');
 
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'cashfree_action_links' );
+
+function cashfree_action_links( $links ) {
+   $links[] = '<a href="'. esc_url( get_admin_url(null, 'admin.php?page=wc-settings&tab=checkout') ) .'">Setup</a>';
+   $links[] = '<a href="https://github.com/cashfree/cashfree_woocommerce_kit/tree/master/woocommerce-cashfree-wp4x-wc2xV3" target="_blank">Github</a>';
+   return $links;
+}
+
+
 function woocommerce_cashfree_init() {
   // If the parent WC_Payment_Gateway class doesn't exist
   // it means WooCommerce is not installed on the site
