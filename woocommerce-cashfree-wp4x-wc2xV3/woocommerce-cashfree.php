@@ -5,7 +5,7 @@ Plugin URI: https://www.gocashfree.com
 Description: Payment gateway plugin by Cashfree for Woocommerce sites
 Version: 1.1
 Author: Cashfree Dev
-Author URI: https://www.gocashfree.com
+Author URI: techsupport@gocashfree.com
 */
  
 // Include our Gateway Class and register Payment Gateway with WooCommerce
