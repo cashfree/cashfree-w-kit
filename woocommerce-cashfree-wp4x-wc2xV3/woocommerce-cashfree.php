@@ -204,33 +204,23 @@ function woocommerce_cashfree_init() {
         $cf_request["source"] =  "woocommerce";
         $cf_request["returnUrl"] = $this->return_url;
         $cf_request["notifyUrl"] = $this->notify_url;
-
         $timeout = 10;
  
-        $request_string = "";
-        foreach($cf_request as $key=>$value) {
-           $request_string .= $key.'='.rawurlencode($value).'&';
-        }
-
         $apiEndpoint = $this->api_url;
         $apiEndpoint = rtrim($apiEndpoint, "/");
         $apiEndpoint = $apiEndpoint."/api/v1/order/create";
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,"$apiEndpoint?");
-        curl_setopt($ch,CURLOPT_POST, count($cf_request));
-        curl_setopt($ch,CURLOPT_POSTFIELDS, $request_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        $curl_result=curl_exec ($ch);
-        curl_close ($ch);
-        $jsonResponse = json_decode($curl_result);
+        $postBody = array("body" => $cf_request);
+        $cf_result = wp_remote_retrieve_body(wp_remote_post($apiEndpoint,$postBody));
+        
+        $jsonResponse = json_decode($cf_result);
         if ($jsonResponse->{'status'} == "OK") {
           $paymentLink = $jsonResponse->{"paymentLink"};
           return array('result' => 'success', 'redirect' => $paymentLink);
         } else {
           return array('result' => 'failed', 'messages' => 'Gateway request failed. Please try again');
         }
+        
         exit;
     }
   }
