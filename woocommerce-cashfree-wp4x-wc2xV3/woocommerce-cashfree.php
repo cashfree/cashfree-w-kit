@@ -16,10 +16,10 @@ add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'cashfree_action
 
 function cashfree_action_links( $links ) {
    $links[] = '<a href="'. esc_url( get_admin_url(null, 'admin.php?page=wc-settings&tab=checkout') ) .'">Setup</a>';
-   $links[] = '<a href="https://github.com/cashfree/cashfree_woocommerce_kit/tree/master/woocommerce-cashfree-wp4x-wc2xV3" target="_blank">Github</a>';
+   $url =  "https://github.com/cashfree/cashfree_woocommerce_kit/tree/master/woocommerce-cashfree-wp4x-wc2xV3";
+   $links[] = '<a href="'.esc_url($url).'"" target="_blank">Github</a>';
    return $links;
 }
-
 
 function woocommerce_cashfree_init() {
   // If the parent WC_Payment_Gateway class doesn't exist
@@ -35,7 +35,7 @@ function woocommerce_cashfree_init() {
   		global $woocommerce;
   		global $wpdb;
   		$this->id = "cashfree";
-  		$this->icon = IMGDIR . 'logo.png';
+  		$this->icon = validate_file(IMGDIR . 'logo.png');
       $this->method_title = __( "Cashfree", 'wc_gateway_cashfree' );
       $this->method_description = "Cashfree settings page";
       $this->title = __( "Cashfree", 'wc_gateway_cashfree' ); 
@@ -48,7 +48,7 @@ function woocommerce_cashfree_init() {
   		$this->description 		= $this->settings['description'];
 
       add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-      if ( isset( $_GET[ 'cashfree_callback'])) {
+      if ( isset( $_GET['cashfree_callback'])) {
             $this->check_cashfree_response();
       }
     }
@@ -102,24 +102,24 @@ function woocommerce_cashfree_init() {
     function check_cashfree_response(){
       global $woocommerce;
       global $wpdb;
-      if(isset($_POST['orderId'])){
+      if(isset($_POST["orderId"])){
          if (isset($_GET["ipn"])) {
             $showContent = false;
           } else {
             $showContent = true;
           }
-
-    	  $order = new WC_Order($_POST['orderId']);
+        $orderId = sanitize_text_field($_POST["orderId"]);
+    	  $order = new WC_Order($orderId);
 	      if ($order && $order->get_status() == "pending") {
           $cashfree_response = array();
-          $cashfree_response["orderId"] = $_POST["orderId"];
-          $cashfree_response["orderAmount"] = $_POST["orderAmount"];
-          $cashfree_response["txStatus"] = $_POST["txStatus"];
-          $cashfree_response["referenceId"] = $_POST["referenceId"];
-          $cashfree_response["txTime"] = $_POST["txTime"];
-          $cashfree_response["txMsg"] = $_POST["txMsg"];
-          $cashfree_response["paymentMode"] = $_POST["paymentMode"];
-          $cashfree_response["signature"] = $_POST["signature"];
+          $cashfree_response["orderId"] = $orderId;
+          $cashfree_response["orderAmount"] = sanitize_text_field($_POST["orderAmount"]);
+          $cashfree_response["txStatus"] = sanitize_text_field($_POST["txStatus"]);
+          $cashfree_response["referenceId"] = sanitize_text_field($_POST["referenceId"]);
+          $cashfree_response["txTime"] = sanitize_text_field($_POST["txTime"]);
+          $cashfree_response["txMsg"] = sanitize_text_field($_POST["txMsg"]);
+          $cashfree_response["paymentMode"] = sanitize_text_field($_POST["paymentMode"]);
+          $cashfree_response["signature"] = sanitize_text_field($_POST["signature"]);
 	
           $secret_key = $this->secret_key;
           $data = "{$cashfree_response['orderId']}{$cashfree_response['orderAmount']}{$cashfree_response['referenceId']}{$cashfree_response['txStatus']}{$cashfree_response['paymentMode']}{$cashfree_response['txMsg']}{$cashfree_response['txTime']}";
@@ -179,10 +179,10 @@ function woocommerce_cashfree_init() {
         $customerPhone = $phone_number;
 
         if ($user_email == ''){
-          $user_email = $_POST['billing_email'];
-          $first_name = $_POST['billing_first_name'];
-          $last_name  = $_POST['billing_last_name'];
-          $phone_number = $_POST['billing_phone'];			
+          $user_email = sanitize_text_field($_POST['billing_email']);
+          $first_name = sanitize_text_field($_POST['billing_first_name']);
+          $last_name  = sanitize_text_field($_POST['billing_last_name']);
+          $phone_number = sanitize_text_field($_POST['billing_phone']);			
           $customerName	= $first_name." ".$last_name;
           $customerEmail = $user_email;
           $customerPhone = $phone_number;
@@ -209,10 +209,8 @@ function woocommerce_cashfree_init() {
         $apiEndpoint = $this->api_url;
         $apiEndpoint = rtrim($apiEndpoint, "/");
         $apiEndpoint = $apiEndpoint."/api/v1/order/create";
-
         $postBody = array("body" => $cf_request);
-        $cf_result = wp_remote_retrieve_body(wp_remote_post($apiEndpoint,$postBody));
-        
+        $cf_result = wp_remote_retrieve_body(wp_remote_post(esc_url($apiEndpoint),$postBody));
         $jsonResponse = json_decode($cf_result);
         if ($jsonResponse->{'status'} == "OK") {
           $paymentLink = $jsonResponse->{"paymentLink"};
