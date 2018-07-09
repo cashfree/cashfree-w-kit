@@ -10,8 +10,6 @@ Author URI: techsupport@gocashfree.com
  
 // Include our Gateway Class and register Payment Gateway with WooCommerce
 add_action( 'plugins_loaded', 'woocommerce_cashfree_init', 0 );
-define('IMGDIR', WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/assets/img/');
-
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'cashfree_action_links' );
 
 function cashfree_action_links( $links ) {
@@ -35,9 +33,9 @@ function woocommerce_cashfree_init() {
   		global $woocommerce;
   		global $wpdb;
   		$this->id = "cashfree";
-  		$this->icon = validate_file(IMGDIR . 'logo.png');
+  		$this->icon = 'https://s3-ap-southeast-1.amazonaws.com/cfreeimages/cf-mailer-logo.png';
       $this->method_title = __( "Cashfree", 'wc_gateway_cashfree' );
-      $this->method_description = "Cashfree settings page";
+      $this->method_description = "Cashfree payment gateway redirects customers to checkout page to fill in their payment details and complete the payment";
       $this->title = __( "Cashfree", 'wc_gateway_cashfree' ); 
   		$this->has_fields = false;
   		$this->init_form_fields();
