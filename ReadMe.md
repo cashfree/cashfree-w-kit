@@ -5,7 +5,7 @@ This repository contains a payment gateway plugin for woocommerce.
 
 - Extract and copy this plugin in plugin folder (/wp-content/plugins) of your website
 
-- Activate plugin 'Cashfree' from Wordpress Plugins Page
+- Activate plugin 'Cashfree' from Wordpress Plugins Page.
 
 - Go to your WooCommerce Settings, click on payments and enable Cashfree under Payment methods section and click "set up".
 
